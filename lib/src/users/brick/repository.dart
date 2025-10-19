@@ -31,8 +31,7 @@ class Repository extends OfflineFirstWithSupabaseRepository {
 
     await Supabase.initialize(
       url: 'https://pvpjfsvxgxjqrjnbtnyt.supabase.co',
-      anonKey:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2cGpmc3Z4Z3hqcXJqbmJ0bnl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwOTk4NDksImV4cCI6MjA3NTY3NTg0OX0.1A_fuRi7N2ZJ8WwWGaoSuxbPU2PNyjFtoDqKRxd9pk4',
+      anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2cGpmc3Z4Z3hqcXJqbmJ0bnl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwOTk4NDksImV4cCI6MjA3NTY3NTg0OX0.1A_fuRi7N2ZJ8WwWGaoSuxbPU2PNyjFtoDqKRxd9pk4',
       httpClient: client,
     );
 
