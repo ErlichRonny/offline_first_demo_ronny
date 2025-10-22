@@ -45,6 +45,7 @@ class _MyCustomFormState extends State<MyCustomForm> {
     super.initState();
 
     Supabase.instance.client
+        // Channel name based on table name
         .channel('public:simple_items')
         .onPostgresChanges(
           event: PostgresChangeEvent.all,
@@ -55,6 +56,7 @@ class _MyCustomFormState extends State<MyCustomForm> {
             final record = payload.newRecord;
             if (record['name'] is String) {
               final String newName = record['name'] as String;
+              // Update TextField with new name from db
               setState(() {
                 myController.text = newName;
               });
@@ -72,14 +74,6 @@ class _MyCustomFormState extends State<MyCustomForm> {
     super.dispose();
   }
 
-  void _printLatestValue(String text) async {
-    await Repository().upsert(SimpleItem(name: text));
-  }
-
-  Future<void> _createNewItem(String text) async {
-    await Repository().upsert<SimpleItem>(SimpleItem(name: text));
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,7 +85,8 @@ class _MyCustomFormState extends State<MyCustomForm> {
             TextField(
               controller: myController,
               onChanged: (text) {
-                _createNewItem(text);
+                // Create and sync SimpleItem on each text change
+                SimpleItem(name: text).sync(Repository());
               },
               decoration: const InputDecoration(labelText: 'SimpleItem Name'),
             ),
