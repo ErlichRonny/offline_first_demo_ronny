@@ -39,9 +39,6 @@ class _MyCustomFormState extends State<MyCustomForm> {
   // Create a text controller and use it to retrieve the current value
   // of the TextField.
   final myController = TextEditingController();
-  // The simple item we are syncing
-  static const String simpleItemId = '1';
-  String currentName = "Initial";
 
   @override
   void initState() {
@@ -56,10 +53,9 @@ class _MyCustomFormState extends State<MyCustomForm> {
           table: 'simple_items',
           callback: (payload) {
             final record = payload.newRecord;
-            if (record['id'] == simpleItemId && record['name'] is String) {
+            if (record['name'] is String) {
               final String newName = record['name'] as String;
               setState(() {
-                currentName = newName;
                 myController.text = newName;
               });
             }
@@ -80,11 +76,8 @@ class _MyCustomFormState extends State<MyCustomForm> {
     await Repository().upsert(SimpleItem(name: text));
   }
 
-  Future<void> _updateName(String text) async {
-    await Repository().upsert<SimpleItem>(
-      SimpleItem(id: simpleItemId, name: text),
-    );
-    setState(() => currentName = text);
+  Future<void> _createNewItem(String text) async {
+    await Repository().upsert<SimpleItem>(SimpleItem(name: text));
   }
 
   @override
@@ -97,11 +90,13 @@ class _MyCustomFormState extends State<MyCustomForm> {
           children: [
             TextField(
               controller: myController,
-              onChanged: _updateName,
+              onChanged: (text) {
+                _createNewItem(text);
+              },
               decoration: const InputDecoration(labelText: 'SimpleItem Name'),
             ),
             const SizedBox(height: 16),
-            Text('Current SimpleItem: $currentName'),
+            Text('Typing will create a new SimpleItem in Supabase.'),
           ],
         ),
       ),
