@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:offline_first_demo/src/users/brick/repository.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide User;
-import 'package:offline_first_demo/src/users/demo.model.dart';
+import 'package:offline_first_demo/src/users/simple_item.model.dart';
 
 Future<void> main() async {
   await Repository.configure(databaseFactory);
@@ -39,20 +39,30 @@ class _MyCustomFormState extends State<MyCustomForm> {
   // Create a text controller and use it to retrieve the current value
   // of the TextField.
   final myController = TextEditingController();
+  // The simple item we are syncing
+  static const String simpleItemId = '1';
+  String currentName = "Initial";
 
   @override
   void initState() {
     super.initState();
 
     Supabase.instance.client
-        .channel('public:demo')
+        .channel('public:simple_items')
         .onPostgresChanges(
           event: PostgresChangeEvent.all,
           schema: 'public',
-          table: 'demo',
+          // Subscribe to simple_items instead of demo
+          table: 'simple_items',
           callback: (payload) {
-            print('Change received: ${payload.newRecord['text_in_field']}');
-            myController.text = payload.newRecord['text_in_field'];
+            final record = payload.newRecord;
+            if (record['id'] == simpleItemId && record['name'] is String) {
+              final String newName = record['name'] as String;
+              setState(() {
+                currentName = newName;
+                myController.text = newName;
+              });
+            }
           },
         )
         .subscribe();
@@ -67,23 +77,31 @@ class _MyCustomFormState extends State<MyCustomForm> {
   }
 
   void _printLatestValue(String text) async {
-    await Repository().upsert<Demo>(Demo(textInField: text));
+    await Repository().upsert(SimpleItem(name: text));
+  }
+
+  Future<void> _updateName(String text) async {
+    await Repository().upsert<SimpleItem>(
+      SimpleItem(id: simpleItemId, name: text),
+    );
+    setState(() => currentName = text);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Retrieve Text Input')),
+      appBar: AppBar(title: const Text('SimpleItem Sync Demo')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             TextField(
               controller: myController,
-              onChanged: (text) {
-                _printLatestValue(text);
-              },
+              onChanged: _updateName,
+              decoration: const InputDecoration(labelText: 'SimpleItem Name'),
             ),
+            const SizedBox(height: 16),
+            Text('Current SimpleItem: $currentName'),
           ],
         ),
       ),

@@ -20,17 +20,21 @@ import 'package:brick_offline_first/brick_offline_first.dart' show RuntimeOfflin
 import 'package:sqflite_common/sqlite_api.dart' show DatabaseExecutor;
 
 import '../src/users/demo.model.dart';
+import '../src/users/simple_item.model.dart';
 
 part 'adapters/demo_adapter.g.dart';
+part 'adapters/simple_item_adapter.g.dart';
 
 /// Supabase mappings should only be used when initializing a [SupabaseProvider]
 final Map<Type, SupabaseAdapter<SupabaseModel>> supabaseMappings = {
-  Demo: DemoAdapter()
+  Demo: DemoAdapter(),
+  SimpleItem: SimpleItemAdapter()
 };
 final supabaseModelDictionary = SupabaseModelDictionary(supabaseMappings);
 
 /// Sqlite mappings should only be used when initializing a [SqliteProvider]
 final Map<Type, SqliteAdapter<SqliteModel>> sqliteMappings = {
-  Demo: DemoAdapter()
+  Demo: DemoAdapter(),
+  SimpleItem: SimpleItemAdapter()
 };
 final sqliteModelDictionary = SqliteModelDictionary(sqliteMappings);

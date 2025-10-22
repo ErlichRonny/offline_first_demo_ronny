@@ -6,6 +6,7 @@ import 'package:brick_sqlite/memory_cache_provider.dart';
 // supabase_flutter **will not** be imported in application code.
 import 'package:brick_supabase/brick_supabase.dart' hide Supabase;
 import 'package:offline_first_demo/brick/db/schema.g.dart';
+import 'package:offline_first_demo/src/users/simple_item.model.dart';
 import 'package:sqflite_common/sqlite_api.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -31,7 +32,8 @@ class Repository extends OfflineFirstWithSupabaseRepository {
 
     await Supabase.initialize(
       url: 'https://pvpjfsvxgxjqrjnbtnyt.supabase.co',
-      anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2cGpmc3Z4Z3hqcXJqbmJ0bnl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwOTk4NDksImV4cCI6MjA3NTY3NTg0OX0.1A_fuRi7N2ZJ8WwWGaoSuxbPU2PNyjFtoDqKRxd9pk4',
+      anonKey:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2cGpmc3Z4Z3hqcXJqbmJ0bnl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwOTk4NDksImV4cCI6MjA3NTY3NTg0OX0.1A_fuRi7N2ZJ8WwWGaoSuxbPU2PNyjFtoDqKRxd9pk4',
       httpClient: client,
     );
 
@@ -52,5 +54,12 @@ class Repository extends OfflineFirstWithSupabaseRepository {
       // Specify class types that should be cached in memory
       memoryCacheProvider: MemoryCacheProvider(),
     );
+  }
+}
+
+extension SimpleItemRepository on Repository {
+  Future<void> upsertSimpleItem(SimpleItem item) async {
+    // Upsert into supabase
+    await Repository().upsert<SimpleItem>(item);
   }
 }
