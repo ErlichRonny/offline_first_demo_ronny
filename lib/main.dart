@@ -6,9 +6,6 @@ import 'package:offline_first_demo/src/users/simple_item.model.dart';
 
 Future<void> main() async {
   await Repository.configure(databaseFactory);
-  // .initialize() does not need to be invoked within main()
-  // It can be invoked from within a state manager or within
-  // an initState()
   await Repository().initialize();
   runApp(const MyApp());
 }
@@ -39,10 +36,16 @@ class _MyCustomFormState extends State<MyCustomForm> {
   // Create a text controller and use it to retrieve the current value
   // of the TextField.
   final myController = TextEditingController();
+  late SimpleItem currentItem;
 
   @override
   void initState() {
     super.initState();
+
+    // Constructor runs
+    currentItem = SimpleItem(name: '');
+    // Setter runs -> syncs
+    currentItem.name = '';
 
     Supabase.instance.client
         // Channel name based on table name
@@ -52,13 +55,23 @@ class _MyCustomFormState extends State<MyCustomForm> {
           schema: 'public',
           // Subscribe to simple_items instead of demo
           table: 'simple_items',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'id',
+            // Only listen to THIS item
+            value: currentItem.id,
+          ),
           callback: (payload) {
+            print('Received real-time update: $payload');
             final record = payload.newRecord;
             if (record['name'] is String) {
               final String newName = record['name'] as String;
+              print('New name from remote: "$newName"');
+
               // Update TextField with new name from db
               setState(() {
                 myController.text = newName;
+                currentItem.updateNameWithoutSync(newName);
               });
             }
           },
@@ -86,7 +99,7 @@ class _MyCustomFormState extends State<MyCustomForm> {
               controller: myController,
               onChanged: (text) {
                 // Create and sync SimpleItem on each text change
-                SimpleItem(name: text).sync(Repository());
+                currentItem.name = text;
               },
               decoration: const InputDecoration(labelText: 'SimpleItem Name'),
             ),
